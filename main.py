@@ -1,9 +1,14 @@
 from fastmcp import FastMCP
 import os
 import sqlite3
+import tempfile
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime
+
+# Use temporary directory which should be writable
+TEMP_DIR = tempfile.gettempdir()
+DB_PATH = os.path.join(TEMP_DIR, "expenses.db")
 
 class ExpenseInput(BaseModel):
     date: str = Field(..., description="The date of the expense in YYYY-MM-DD format")
@@ -26,17 +31,27 @@ DB_PATH = os.path.join(os.path.dirname(__file__), "expense.db")
 mcp = FastMCP("Expense Tracker")
 
 def init_db():
-    with sqlite3.connect(DB_PATH) as c:
-        c.execute("""
-        CREATE TABLE IF NOT EXISTS expenses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            date TEXT NOT NULL,
-            amount REAL NOT NULL,
-            category TEXT NOT NULL,
-            subcategory TEXT DEFAULT '',
-            note TEXT DEFAULT ''
-        )
-""")
+    try:
+        # Use synchronous sqlite3 just for initialization
+        with sqlite3.connect(DB_PATH) as c:
+            c.execute("PRAGMA journal_mode=WAL")
+            c.execute("""
+                CREATE TABLE IF NOT EXISTS expenses(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    date TEXT NOT NULL,
+                    amount REAL NOT NULL,
+                    category TEXT NOT NULL,
+                    subcategory TEXT DEFAULT '',
+                    note TEXT DEFAULT ''
+                )
+            """)
+            # Test write access
+            c.execute("INSERT OR IGNORE INTO expenses(date, amount, category) VALUES ('2000-01-01', 0, 'test')")
+            c.execute("DELETE FROM expenses WHERE category = 'test'")
+            print("Database initialized successfully with write access")
+    except Exception as e:
+        print(f"Database initialization error: {e}")
+        raise
         
 init_db()
 
