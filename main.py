@@ -31,8 +31,6 @@ DB_PATH = os.path.join(os.path.dirname(__file__), "expense.db")
 mcp = FastMCP("Expense Tracker")
 
 def init_db():
-    try:
-        # Use synchronous sqlite3 just for initialization
         with sqlite3.connect(DB_PATH) as c:
             c.execute("PRAGMA journal_mode=WAL")
             c.execute("""
@@ -45,14 +43,8 @@ def init_db():
                     note TEXT DEFAULT ''
                 )
             """)
-            # Test write access
-            c.execute("INSERT OR IGNORE INTO expenses(date, amount, category) VALUES ('2000-01-01', 0, 'test')")
-            c.execute("DELETE FROM expenses WHERE category = 'test'")
-            print("Database initialized successfully with write access")
-    except Exception as e:
-        print(f"Database initialization error: {e}")
-        raise
-        
+
+
 init_db()
 
 @mcp.tool
