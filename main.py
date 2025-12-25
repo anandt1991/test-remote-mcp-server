@@ -30,6 +30,8 @@ class ExpenseInput(BaseModel):
 TEMP_DIR = tempfile.gettempdir()
 DB_PATH = os.path.join(TEMP_DIR, "expenses.db")
 
+print(f"Database path: {DB_PATH}")
+
 #DB_PATH = os.path.join(os.path.dirname(__file__), "expense.db")
 
 mcp = FastMCP("Expense Tracker")
