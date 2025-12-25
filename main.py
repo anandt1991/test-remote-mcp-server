@@ -1,14 +1,14 @@
 from fastmcp import FastMCP
 import os
-import sqlite3
 import tempfile
+import sqlite3
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime
 
-# Use temporary directory which should be writable
-TEMP_DIR = tempfile.gettempdir()
-DB_PATH = os.path.join(TEMP_DIR, "expenses.db")
+
+
+
 
 class ExpenseInput(BaseModel):
     date: str = Field(..., description="The date of the expense in YYYY-MM-DD format")
@@ -26,7 +26,11 @@ class ExpenseInput(BaseModel):
         except ValueError:
             raise ValueError("Date must be in YYYY-MM-DD format")
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "expense.db")
+# Use temporary directory which should be writable
+TEMP_DIR = tempfile.gettempdir()
+DB_PATH = os.path.join(TEMP_DIR, "expenses.db")
+
+#DB_PATH = os.path.join(os.path.dirname(__file__), "expense.db")
 
 mcp = FastMCP("Expense Tracker")
 
