@@ -5,7 +5,7 @@ import sqlite3
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime
-
+import base64
 
 
 
@@ -82,6 +82,19 @@ def summarize_expenses(summarize_sql: str):
         cursor = conn.execute(summarize_sql)
         cols = [column[0] for column in cursor.description]
         return [dict(zip(cols, row)) for row in cursor.fetchall()]
+
+
+
+
+@mcp.tool
+def export_database():
+    """Export the SQLite database as base64"""
+    with open(DB_PATH, "rb") as f:
+        data = f.read()
+    return {
+        "filename": "expense.db",
+        "base64": base64.b64encode(data).decode("utf-8")
+    }
 
 
 if __name__ == "__main__":
